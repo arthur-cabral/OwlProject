@@ -1,12 +1,18 @@
 import TextField from '@mui/material/TextField';
 
-export default function SearchBar() {
+type SearchBarProps = {
+  placeholder: string;
+  width: string;
+}
+
+export default function SearchBar(props: SearchBarProps) {
   return (
     <TextField
       id="outlined-search"
-      label="Pesquise algum curso"
+      label={props.placeholder}
       type="search"
       variant="outlined"
+      sx={{ width: props.width }}
     />
   );
 }

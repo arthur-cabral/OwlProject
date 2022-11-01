@@ -9,7 +9,7 @@ import React from 'react';
 
 export default function DropBox() {
   return (
-    <FormControl sx={{ m: 1, minWidth: 300 }}>
+    <FormControl sx={{ m: 1, minWidth: 400 }}>
       <InputLabel id="demo-simple-select-label">Categorias</InputLabel>
       <Select
         labelId="demo-simple-select-label"
