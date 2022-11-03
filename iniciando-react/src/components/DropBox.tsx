@@ -16,9 +16,9 @@ export default function DropBox() {
         id="demo-simple-select"
         label="Age"
       >
-        <MenuItem value={10}>Ten</MenuItem>
-        <MenuItem value={20}>Twenty</MenuItem>
-        <MenuItem value={30}>Thirty</MenuItem>
+        <MenuItem value={10}>React</MenuItem>
+        <MenuItem value={20}>Java</MenuItem>
+        <MenuItem value={30}>Kotlin</MenuItem>
       </Select>
     </FormControl>
   )

@@ -2,6 +2,8 @@ import ButtonVariant from "./Button";
 import DropBox from "./DropBox";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
+import LogoOwl from "../assets/images/owlLogo.png";
+import { Link } from "@mui/material";
 
 export function Header() {
   return (
@@ -16,7 +18,10 @@ export function Header() {
         }
       } >
       <DropBox />
-      <span>Logo</span>
+      <Link href="/">
+        <img src={LogoOwl} alt="Logo Owl" style={{ width: "5rem", height: "5rem" }}
+        />
+      </Link>
       <Stack direction="row" spacing={2}>
         <ButtonVariant text="Sobre nós" variant="text" color="primary" size="medium" />
         <ButtonVariant text="Contato" variant="text" color="primary" size="medium" />
