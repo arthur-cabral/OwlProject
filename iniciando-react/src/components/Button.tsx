@@ -3,13 +3,13 @@ import Button from '@mui/material/Button';
 
 type ButtonProps = {
   variant: 'text' | 'outlined' | 'contained';
-  color: 'inherit' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
-  size: 'small' | 'medium' | 'large';
   text: string;
+  onClick?: () => void;
+  action?: () => void;
 }
 
 export default function ButtonVariant(props: ButtonProps) {
   return (
-    <Button variant={props.variant}>{props.text}</Button>
+    <Button onClick={props.onClick} action={props.action} variant={props.variant}>{props.text}</Button>
   );
 }

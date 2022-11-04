@@ -9,3 +9,16 @@ body {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 500;
 }
+
+/*adicionar color nos elementos de texto */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span {
+  font-weight: 600;
+}
