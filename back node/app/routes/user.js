@@ -1,4 +1,5 @@
 module.exports = function (application) {
+
   application.get('/user', function (req, res) {
 
     var connection = application.config.dbConnection();
@@ -27,12 +28,15 @@ module.exports = function (application) {
 
   });
 
-  // application.post('/user', function (req, res) {
-  //   var connection = application.config.dbConnection();
-  //   var userModel = new application.app.models.UserModel(connection);
+  application.post('/user', function (req, res) {
 
-  //   userModel.insertUsuario(req.body, function (error, result) {
-  //     return res.json(result);
-  //   });
-  // });
+    var usuario = req.body;
+    var connection = application.config.dbConnection();
+    var userModel = new application.app.models.UserModel(connection);
+
+    userModel.salvarUsuario(usuario, function (error, result) {
+      return res.json(result);
+    });
+
+  });
 }
