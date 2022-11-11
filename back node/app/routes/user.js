@@ -34,9 +34,30 @@ module.exports = function (application) {
     var connection = application.config.dbConnection();
     var userModel = new application.app.models.UserModel(connection);
 
-    userModel.salvarUsuario(usuario, function (error, result) {
+    userModel.insertUser(usuario, function (error, result) {
       return res.json(result);
     });
 
+  });
+
+  //login
+  application.post('/user/login', function (req, res) {
+
+    var usuario = req.body;
+    var connection = application.config.dbConnection();
+    var userModel = new application.app.models.UserModel(connection);
+
+    userModel.login(usuario, function (error, result) {
+      try {
+        if (result.length > 0) {
+          return res.json({ status: 200, user: result[0] });
+        } else {
+          return res.json({ status: 404, user: null });
+        }
+      } catch (error) {
+        return res.json({ error: 'Usuário não encontrado' });
+      }
+      // close connection
+    });
   });
 }
