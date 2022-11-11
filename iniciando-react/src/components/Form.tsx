@@ -18,10 +18,9 @@ export default function Form(props: FormProps) {
   });
 
   const [userRegister, setUserRegister] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    nameU: "",
+    emailU: "",
+    passwordU: "",
   });
 
   const handleOnChangeLogin = (event: any) => {
@@ -56,6 +55,8 @@ export default function Form(props: FormProps) {
       .then((response) => {
         if (response.data.status === 200) {
           console.log(response.data);
+        } else {
+          console.log(response);
         }
       }).catch((error) => {
         console.log(error);
@@ -84,16 +85,16 @@ export default function Form(props: FormProps) {
             <form>
               <Stack spacing={4}>
                 <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="name" id="name" placeholder="Nome" />
+                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="nameU" id="name" placeholder="Nome" />
                 </FormControl>
                 <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="email" id="email" placeholder="E-mail" />
+                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="emailU" id="email" placeholder="E-mail" />
                 </FormControl>
                 <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="password" id="password" type="password" placeholder="Senha" />
+                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="passwordU" id="password" type="password" placeholder="Senha" />
                 </FormControl>
                 <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="confirmPassword" id="confirmPassword" type="password" placeholder="Confirmar senha" />
+                  <Input name="confirmPasswordU" id="confirmPassword" type="password" placeholder="Confirmar senha" />
                 </FormControl>
                 <Button onClick={() => { handleSubmitRegister() }} variant="contained" text="Cadastrar" />
               </Stack>

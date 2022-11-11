@@ -28,13 +28,16 @@ module.exports = function (application) {
 
   });
 
-  application.post('/user', function (req, res) {
+  application.post('/user/register', function (req, res) {
 
     var usuario = req.body;
     var connection = application.config.dbConnection();
     var userModel = new application.app.models.UserModel(connection);
 
     userModel.insertUser(usuario, function (error, result) {
+      if (error) {
+        res.send(error);
+      }
       return res.json(result);
     });
 
