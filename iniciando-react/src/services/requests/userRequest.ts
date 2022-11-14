@@ -4,7 +4,7 @@ export const usuario = (api: AxiosInstance, url: string) => (
   {
     usuario: {
       getUser: () => api.get(url),
-      getOne: (id: number) => api.get(`${url}/${id}`),
+      getUserByEmail: (email: string) => api.get(`${url}/${email}`),
       register: (data: Object) => api.post(`${url}/register`, data),
       login: (data: Object) => api.post(`${url}/login`, data),
       // put: (url, id, data) => api.put(`${url}/${id}`, data),

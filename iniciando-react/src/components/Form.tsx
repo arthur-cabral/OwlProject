@@ -1,6 +1,6 @@
 import { Checkbox, FormControl, FormControlLabel, FormGroup, Input, InputLabel, Stack } from "@mui/material";
-import Button from "./Button";
-import { useState } from "react";
+import Button from "@mui/material/Button";
+import React, { useState } from "react";
 import { requests } from "../services/api";
 import { ErrorMessage, Field, Form as FormikForm, Formik } from 'formik'
 import * as yup from 'yup'
@@ -10,11 +10,42 @@ type FormProps = {
   tipo: string;
 };
 
+const validationsLogin = yup.object().shape({
+  emailU: yup.string()
+    .email('Email inválido')
+    .required('Campo obrigatório')
+    .typeError('Email inválido')
+    .nullable(),
+  passwordU: yup.string()
+    .min(8, 'Mínimo de 8 caracteres')
+    .required('Campo obrigatório')
+    .nullable(),
+})
+
+const validationsRegister = yup.object().shape({
+  nameU: yup.string()
+    .min(3, 'Mínimo de 3 caracteres')
+    .required('Campo obrigatório')
+    .nullable(),
+  emailU: yup.string()
+    .email('Email inválido')
+    .required('Campo obrigatório')
+    .nullable(),
+  passwordU: yup.string()
+    .min(6, 'Mínimo de 8 caracteres')
+    .required('Campo obrigatório')
+    .nullable(),
+  passwordConfirmationU: yup.string()
+    .oneOf([yup.ref('passwordU'), null], 'Senhas não conferem')
+    .required('Campo obrigatório')
+    .nullable()
+})
 
 export default function Form(props: FormProps) {
+  const [tipo, setTipo] = useState(props.tipo);
   const [userLogin, setUserLogin] = useState({
-    email: "",
-    password: "",
+    emailU: "",
+    passwordU: "",
   });
 
   const [userRegister, setUserRegister] = useState({
@@ -23,12 +54,23 @@ export default function Form(props: FormProps) {
     passwordU: "",
   });
 
+  const initialValuesLogin = {
+    emailU: '',
+    passwordU: ''
+  }
+
+  const initialValuesRegister = {
+    nameU: '',
+    emailU: '',
+    passwordU: '',
+    passwordConfirmationU: ''
+  }
+
   const handleOnChangeLogin = (event: any) => {
     setUserLogin({
       ...userLogin,
       [event.target.name]: event.target.value,
     });
-    console.log(userLogin);
   };
 
   const handleOnChangeRegister = (event: any) => {
@@ -36,69 +78,190 @@ export default function Form(props: FormProps) {
       ...userRegister,
       [event.target.name]: event.target.value,
     });
-    console.log(userRegister);
   };
 
-  const handleSubmitLogin = async () => {
-    await requests.usuario.login(userLogin)
-      .then((response) => {
-        if (response.data.status === 200) {
-          console.log(response.data);
-        }
-      }).catch((error) => {
-        console.log(error);
-      });
-  }
-
-  const handleSubmitRegister = async () => {
-    await requests.usuario.register(userRegister)
-      .then((response) => {
-        if (response.data.status === 200) {
-          console.log(response.data);
+  const handleSubmit = async (e: any, resetForm: any) => {
+    try {
+      if (tipo === "login") {
+        await requests.usuario.login(userLogin).then((response) => {
+          if (response.status === 200) {
+            // voltar para a pagina inicial
+            localStorage.setItem('autenticado', 'true');
+            window.location.reload();
+          } else {
+            resetForm();
+          }
+        })
+      } else if (tipo === "cadastro") {
+        var findUser = await requests.usuario.getUserByEmail(userRegister.emailU);
+        if (findUser.data.length === 0) {
+          await requests.usuario.register(userRegister).then((response) => {
+            if (response.status === 201) {
+              setTipo("login");
+              resetForm();
+            } else {
+              resetForm();
+            }
+          })
         } else {
-          console.log(response);
+          resetForm();
+          alert("Email já cadastrado");
         }
-      }).catch((error) => {
-        console.log(error);
-      });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleChangeForm = () => {
+    if (tipo === "login") {
+      setTipo("cadastro");
+    } else {
+      setTipo("login");
+    }
   }
 
   return (
     <>
       {
-        props.tipo === "login" ?
-          <form>
-            <Stack spacing={4}>
-              <FormControl>
-                <Input onChange={(e) => { handleOnChangeLogin(e) }} name="email" id="email" placeholder="E-mail" />
-              </FormControl>
-              <FormControl>
-                <Input onChange={(e) => { handleOnChangeLogin(e) }} name="password" id="password" placeholder="Senha" type="password" />
-              </FormControl>
-              <FormGroup>
-                <FormControlLabel control={<Checkbox />} label="Continuar conectado?" />
-              </FormGroup>
-              <Button onClick={() => { handleSubmitLogin() }} text="Entrar" variant="contained" />
-            </Stack>
-          </form>
-          : props.tipo === "cadastro" ?
-            <form>
-              <Stack spacing={4}>
-                <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="nameU" id="name" placeholder="Nome" />
-                </FormControl>
-                <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="emailU" id="email" placeholder="E-mail" />
-                </FormControl>
-                <FormControl>
-                  <Input onChange={(e) => { handleOnChangeRegister(e) }} name="passwordU" id="password" type="password" placeholder="Senha" />
-                </FormControl>
-                <FormControl>
-                  <Input name="confirmPasswordU" id="confirmPassword" type="password" placeholder="Confirmar senha" />
-                </FormControl>
-                <Button onClick={() => { handleSubmitRegister() }} variant="contained" text="Cadastrar" />
-              </Stack>
-            </form>
+        tipo === "login" ?
+          <Formik
+            initialValues={initialValuesLogin}
+            validationSchema={validationsLogin}
+            onSubmit={(values, actions) => {
+              setTimeout(() => {
+                handleSubmit(values, actions.resetForm)
+                actions.setSubmitting(false);
+              }, 1000);
+            }}
+          >
+            {props => (
+              <FormikForm onChange={props.handleChange} onSubmit={props.handleSubmit}>
+                <Stack spacing={4}>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      onChange={(e) => { handleOnChangeLogin(e) }}
+                      onBlur={props.handleBlur}
+                      value={props.values.emailU}
+                      placeholder="E-mail"
+                      name="emailU"
+                    />
+                    {props.errors.emailU && <div id="feedback">{props.errors.emailU}</div>}
+                  </FormControl>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      onChange={(e) => { handleOnChangeLogin(e) }}
+                      onBlur={props.handleBlur}
+                      value={props.values.passwordU}
+                      placeholder="Senha"
+                      name="passwordU"
+                    />
+                    {props.errors.passwordU && <div id="feedback">{props.errors.passwordU}</div>}
+                  </FormControl>
+                  <FormControl>
+                    <FormControlLabel control={<Checkbox />} label="Continuar conectado?" />
+                  </FormControl>
+                  <Button variant="contained" type="submit" >Login</Button>
+                  <Button variant="text" onClick={handleChangeForm}>Cadastre-se</Button>
+                </Stack>
+              </FormikForm>
+            )}
+          </Formik>
+          : tipo === "cadastro" ?
+            <Formik
+              initialValues={initialValuesRegister}
+              validationSchema={validationsRegister}
+              onSubmit={(values, actions) => {
+                setTimeout(() => {
+                  handleSubmit(values, actions.resetForm)
+                  actions.setSubmitting(false);
+                }, 1000);
+              }}
+            >
+              {props => (
+                <FormikForm onChange={props.handleChange} onSubmit={props.handleSubmit}>
+                  <Stack spacing={4}>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        onChange={(e) => { handleOnChangeRegister(e) }}
+                        onBlur={props.handleBlur}
+                        value={props.values.nameU}
+                        placeholder="Nome"
+                        name="nameU"
+                      />
+                      {props.errors.nameU && <div id="feedback">{props.errors.nameU}</div>}
+                    </FormControl>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        onChange={(e) => { handleOnChangeRegister(e) }}
+                        onBlur={props.handleBlur}
+                        value={props.values.emailU}
+                        placeholder="E-mail"
+                        name="emailU"
+                      />
+                      {props.errors.emailU && <div id="feedback">{props.errors.emailU}</div>}
+                    </FormControl>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        onChange={(e) => { handleOnChangeRegister(e) }}
+                        onBlur={props.handleBlur}
+                        value={props.values.passwordU}
+                        placeholder="Senha"
+                        name="passwordU"
+                      />
+                      {props.errors.passwordU && <div id="feedback">{props.errors.passwordU}</div>}
+                    </FormControl>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        onChange={(e) => { handleOnChangeRegister(e) }}
+                        onBlur={props.handleBlur}
+                        value={props.values.passwordConfirmationU}
+                        placeholder="Confirme a senha"
+                        name="passwordConfirmationU"
+                      />
+                      {props.errors.passwordConfirmationU && <div id="feedback">{props.errors.passwordConfirmationU}</div>}
+                    </FormControl>
+                    <Button variant="contained" type="submit" >Cadastrar</Button>
+                    <Button variant="text" onClick={handleChangeForm}>Já tenho uma conta</Button>
+                  </Stack>
+                </FormikForm>
+              )}
+            </Formik>
+            // <Formik validationSchema={validationsRegister}
+            //   initialValues={initialValuesRegister}
+            //   onSubmit={handleSubmit}
+            // >
+            //   {(props) => (
+            //     <FormikForm onChange={handleOnChangeLogin} autoComplete="off">
+            //       <Stack spacing={4}>
+            //         <FormControl>
+            //           <Input onChange={(e) => { handleOnChangeRegister(e) }} name="nameU" id="nameU" placeholder="Nome" />
+            //           <ErrorMessage name="nameU" component="span" />
+            //         </FormControl>
+            //         <FormControl>
+            //           <Input onChange={(e) => { handleOnChangeRegister(e) }} name="emailU" id="emailU" placeholder="E-mail" />
+            //           <ErrorMessage name="emailU" component="span" />
+            //         </FormControl>
+            //         <FormControl>
+            //           <Input onChange={(e) => { handleOnChangeRegister(e) }} name="passwordU" id="passwordU" type="password" placeholder="Senha" />
+            //           <ErrorMessage name="passwordU" component="span" />
+            //         </FormControl>
+            //         <FormControl>
+            //           <Input name="passwordConfirmationU" id="passwordConfirmationU" type="password" placeholder="Confirmar senha" />
+            //           <ErrorMessage name="passwordConfirmationU" component="span" />
+            //         </FormControl>
+            //         <Button onClick={(e) => { handleSubmit(e, props.resetForm(initialValuesRegister)) }} variant="contained" type="submit" >Cadastrar</Button>
+            //         <Button onClick={() => { handleChangeForm() }} variant="text">Já tenho uma conta</Button>
+            //       </Stack>
+            //     </FormikForm>
+            //   )}
+            // </Formik>
             : ""
       }
     </>

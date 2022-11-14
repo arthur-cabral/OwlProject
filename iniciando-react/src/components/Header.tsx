@@ -1,12 +1,20 @@
-import ButtonVariant from "./Button";
+import Button from "@mui/material/Button";
 import DropBox from "./DropBox";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
-import LogoOwl from "../assets/images/owlLogo.png";
 import { Link } from "@mui/material";
-import ModalLogin from "./ModalComponents";
+import ModalComponents from "./ModalComponents";
+import IconButton from "./IconButton";
+import IconPerson from "@mui/icons-material/Person";
+import LogoOwl from "../assets/images/owlLogo.png";
 
 export function Header() {
+
+  const handleLogout = () => {
+    localStorage.setItem('autenticado', 'false');
+    window.location.reload();
+  }
+
   return (
     <Box
       sx={
@@ -24,11 +32,21 @@ export function Header() {
         />
       </Link>
       <Stack direction="row" spacing={2}>
-        <ButtonVariant text="Sobre nós" variant="text" />
-        <ButtonVariant text="Contato" variant="text" />
-        <ModalLogin tipo="login" />
-        <ModalLogin tipo="cadastro" />
+        <Button variant="text">Sobre nós</Button>
+        <Button variant="text">Contato</Button>
+        {
+          localStorage.getItem("autenticado") == 'false' ?
+            <>
+              <ModalComponents tipo="login" text="Login" />
+              <ModalComponents tipo="cadastro" text="Cadastro" />
+            </>
+            :
+            <>
+              <IconButton icon={<IconPerson />} color="primary" />
+              <Button variant="contained" color="error" onClick={() => handleLogout()}>Sair</Button>
+            </>
+        }
       </Stack>
-    </Box>
+    </Box >
   )
 }
